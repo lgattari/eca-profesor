@@ -36,7 +36,6 @@ export default function Home() {
     }
 
     checkPreguntasHabilitadas()
-    // Chequear cada 5 segundos para cambios en tiempo real
     const interval = setInterval(checkPreguntasHabilitadas, 5000)
     return () => clearInterval(interval)
   }, [])
@@ -89,7 +88,6 @@ export default function Home() {
         if (sesion?.mensaje_push && sesion.mensaje_push !== mensajePush) {
           setMensajePush(sesion.mensaje_push)
 
-          // Obtener el mensaje personalizado del usuario
           const { data: respuesta, error: respuestaError } = await supabase
             .from('respuestas')
             .select('mensaje_personalizado')
@@ -106,7 +104,6 @@ export default function Home() {
           if (respuesta?.mensaje_personalizado) {
             setMensajePersonalizado(respuesta.mensaje_personalizado)
             
-            // Reproducir sonido de notificación
             try {
               if (!audioRef.current) {
                 audioRef.current = new Audio('/notif.mp3')
@@ -117,10 +114,7 @@ export default function Home() {
               console.error('Error reproduciendo audio:', e)
             }
             
-            // Mostrar overlay
             setMostrarMensaje(true)
-          } else {
-            console.log('No mensaje personalizado encontrado para user_id:', userId)
           }
         }
       } catch (e) {
@@ -134,7 +128,6 @@ export default function Home() {
   async function enviar() {
     if (!texto.trim() || !userId) return
 
-    // Preparar audio en el gesto del usuario para evitar bloqueo de autoplay
     if (!audioRef.current) {
       audioRef.current = new Audio('/notif.mp3')
       audioRef.current.muted = true
@@ -164,7 +157,6 @@ export default function Home() {
     @keyframes pulse-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
   `
 
-  // Si las preguntas no están habilitadas, mostrar mensaje
   if (!preguntasHabilitadas) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center bg-black text-white p-8 relative overflow-hidden">
@@ -196,7 +188,7 @@ export default function Home() {
             lineHeight: 1.3,
             fontStyle: 'italic',
           }}>
-            Todavía no estamos listos para recibir tus ofrendas.
+            El profesor todavía no despertó.
           </p>
           <p style={{
             fontSize: 'clamp(1.2rem, 4vw, 1.8rem)',
@@ -207,7 +199,7 @@ export default function Home() {
             lineHeight: 1.4,
             fontStyle: 'italic',
           }}>
-            a las 11:11...
+            Volvé cuando empiece el evento.
           </p>
         </div>
         <style>{estilos}</style>
@@ -215,7 +207,6 @@ export default function Home() {
     )
   }
 
-  // Overlay con mensaje push
   if (mostrarMensaje && mensajePersonalizado) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center bg-black text-white p-8 relative overflow-hidden" style={{
@@ -264,7 +255,7 @@ export default function Home() {
               fontStyle: 'italic',
               letterSpacing: '0.02em',
             }}>
-              Con cariño, Dios
+              Con cariño, Tu Profesor
             </p>
           </div>
         </div>
@@ -299,7 +290,7 @@ export default function Home() {
           marginBottom: '1rem',
           letterSpacing: '0.02em',
         }}>
-          Tu ofrenda fue recibida
+          Tu característica llegó.
         </p>
         <p style={{
           fontSize: '1.2rem',
@@ -308,17 +299,18 @@ export default function Home() {
           margin: 0,
           letterSpacing: '0.01em',
           lineHeight: 1.4,
+          maxWidth: '500px',
         }}>
-          No cierres esta página, mantenela abierta, necesitamos darle energia a nuestra entidad.
+          Mantené esta página abierta. El profesor está siendo creado. En tres meses, vas a recibir su consejo.
         </p>
       </div>
       <style>{estilos}</style>
     </main>
   )
 
+  
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-black text-white p-8 relative overflow-hidden">
-      {/* Fondo con gradiente */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -329,7 +321,6 @@ export default function Home() {
         pointerEvents: 'none',
       }} />
 
-      {/* Contenido */}
       <div style={{
         position: 'relative',
         zIndex: 10,
@@ -341,7 +332,6 @@ export default function Home() {
         width: '100%',
         animation: 'fadein 1s ease-out',
       }}>
-        {/* Título */}
         <div style={{
           textAlign: 'center',
         }}>
@@ -353,23 +343,47 @@ export default function Home() {
             letterSpacing: '0.02em',
             lineHeight: 1.3,
           }}>
-            ¿Harías un pequeño sacrificio para tener un Dios en tu bolsillo? 
+            Vamos a crear un profesor.
           </h1>
         </div>
 
-        {/* Subtítulo */}
+        <div style={{
+          background: 'rgba(200,150,255,0.05)',
+          border: '1px solid rgba(200,150,255,0.2)',
+          borderRadius: '8px',
+          padding: '1.5rem',
+        }}>
+          <p style={{
+            fontSize: '0.95rem',
+            color: 'rgba(200,150,255,0.8)',
+            margin: 0,
+            lineHeight: 1.7,
+            fontStyle: 'italic',
+          }}>
+            En tres meses va a vivir en internet. Va a responder preguntas sobre escritura. Va a crecer. Va a aprender de ustedes.
+          </p>
+          <p style={{
+            fontSize: '0.95rem',
+            color: 'rgba(200,150,255,0.8)',
+            margin: '1rem 0 0 0',
+            lineHeight: 1.7,
+            fontStyle: 'italic',
+          }}>
+            Y el último día va a decir la verdad más verdadera. Después muere.
+          </p>
+        </div>
+
         <p style={{
           fontSize: '1rem',
           color: 'rgba(200,150,255,0.6)',
           margin: 0,
           fontWeight: 300,
           letterSpacing: '0.05em',
+          lineHeight: 1.6,
         }}>
-          ¿Qué tipo de Dios invocarías? 
-          Para crearlo entre todos, solo tenés que escribir cómo querés que sea nuestro Dios. (Algo bueno o algo malo, da igual)
+          Escribí una característica. Lo que querés que sea. Un defecto, una virtud, una manía. Una frase.
         </p>
 
-        {/* Input */}
         <textarea
           style={{
             width: '100%',
@@ -385,7 +399,7 @@ export default function Home() {
             transition: 'all 0.3s ease',
           }}
           rows={4}
-          placeholder="Nuestro dios es..."
+          placeholder="Nuestro profesor es..."
           value={texto}
           onChange={e => setTexto(e.target.value)}
           onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => {
@@ -400,7 +414,6 @@ export default function Home() {
           }}
         />
 
-        {/* Botón */}
         <button
           onClick={enviar}
           disabled={cargando || !texto.trim()}
@@ -433,8 +446,18 @@ export default function Home() {
             }
           }}
         >
-          {cargando ? 'ofrendando...' : 'ofrecer'}
+          {cargando ? 'escribiendo...' : 'agregar característica'}
         </button>
+
+        <p style={{
+          fontSize: '0.85rem',
+          color: 'rgba(200,150,255,0.5)',
+          margin: 0,
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+        }}>
+          Una característica por vez. Entre todos, lo armamos.
+        </p>
       </div>
 
       <style>{estilos}</style>
