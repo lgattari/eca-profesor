@@ -383,7 +383,7 @@ export default function Admin() {
                 margin: 0,
                 fontStyle: 'italic',
               }}>
-                ✦ el dios está despierto ✦
+                ✦ el profesor está despierto ✦
               </p>
 
               <textarea
@@ -400,7 +400,7 @@ export default function Admin() {
                   resize: 'none',
                 }}
                 rows={2}
-                placeholder="hacele una pregunta al dios..."
+                placeholder="hacele una pregunta al Profe..."
                 value={preguntaCustom}
                 onChange={e => setPreguntaCustom(e.target.value)}
                 onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => {

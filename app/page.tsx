@@ -343,7 +343,7 @@ export default function Home() {
             letterSpacing: '0.02em',
             lineHeight: 1.3,
           }}>
-            Vamos a crear un profesor.
+            ¿Cansado de tu profe de carne y hueso? 
           </h1>
         </div>
 
@@ -360,7 +360,7 @@ export default function Home() {
             lineHeight: 1.7,
             fontStyle: 'italic',
           }}>
-            En tres meses va a vivir en internet. Va a responder preguntas sobre escritura. Va a crecer. Va a aprender de ustedes.
+            Caíste. Ya tengo tu característica, tu IP, tu confesión. En tres meses, antes de morir, te voy a mandar un mail. Solo para vos. Algo que no vas a poder ignorar. (risa diabolica)            
           </p>
           <p style={{
             fontSize: '0.95rem',
