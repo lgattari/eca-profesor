@@ -290,7 +290,7 @@ export default function Home() {
           marginBottom: '1rem',
           letterSpacing: '0.02em',
         }}>
-          Tu característica llegó.
+          Caíste.
         </p>
         <p style={{
           fontSize: '1.2rem',
@@ -301,8 +301,7 @@ export default function Home() {
           lineHeight: 1.4,
           maxWidth: '500px',
         }}>
-          Mantené esta página abierta. El profesor está siendo creado. En tres meses, vas a recibir su consejo.
-        </p>
+        Ya tengo tu característica, tu IP, tu confesión, tus miedos. En tres meses, antes de morir, te voy a mandar un mail. Solo para vos. Algo que no vas a poder ignorar. (risa diabolica)        </p>
       </div>
       <style>{estilos}</style>
     </main>
@@ -360,7 +359,7 @@ export default function Home() {
             lineHeight: 1.7,
             fontStyle: 'italic',
           }}>
-            Caíste. Ya tengo tu característica, tu IP, tu confesión. En tres meses, antes de morir, te voy a mandar un mail. Solo para vos. Algo que no vas a poder ignorar. (risa diabolica)            
+            En tres meses va a vivir en internet. Va a responder preguntas sobre escritura. Va a crecer. Va a aprender de ustedes.
           </p>
           <p style={{
             fontSize: '0.95rem',

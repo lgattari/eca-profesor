@@ -14,6 +14,9 @@ export async function GET() {
     return NextResponse.json({ texto: sesion.monologo_despertar })
   }
 
+    console.log('Calling ElevenLabs with voice ID:', process.env.ELEVENLABS_VOICE_ID)
+
+
   const voiceRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVENLABS_VOICE_ID}`, {
     method: 'POST',
     headers: {
@@ -27,6 +30,9 @@ export async function GET() {
     })
   })
 
+    console.log('ElevenLabs response status:', voiceRes.status)
+
+    
   const audioBuffer = await voiceRes.arrayBuffer()
   return new NextResponse(audioBuffer, {
     headers: {
