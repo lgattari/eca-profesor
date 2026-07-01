@@ -24,10 +24,14 @@ export async function GET() {
 
   if (!data?.respuesta) return new NextResponse(null, { status: 404 })
 
+  if (!process.env.ELEVENLABS_VOICE_ID || !process.env.ELEVENLABS_API_KEY) {
+    return NextResponse.json({ error: 'ElevenLabs configuration missing' }, { status: 500 })
+  }
+
   const voiceRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVENLABS_VOICE_ID}`, {
     method: 'POST',
     headers: {
-      'xi-api-key': process.env.ELEVENLABS_API_KEY!,
+      'xi-api-key': process.env.ELEVENLABS_API_KEY,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -37,8 +41,18 @@ export async function GET() {
     })
   })
 
+  if (!voiceRes.ok) {
+    const errorText = await voiceRes.text()
+    console.error('ElevenLabs TTS failed on /api/audio:', voiceRes.status, errorText)
+    return NextResponse.json({ error: 'ElevenLabs TTS failed', detail: errorText }, { status: voiceRes.status })
+  }
+
   const audioBuffer = await voiceRes.arrayBuffer()
-  return new NextResponse(audioBuffer, {
+  if (audioBuffer.byteLength === 0) {
+    return NextResponse.json({ error: 'Empty audio response from ElevenLabs' }, { status: 502 })
+  }
+
+  return new Response(audioBuffer, {
     headers: {
       'Content-Type': 'audio/mpeg',
       'Content-Length': audioBuffer.byteLength.toString(),

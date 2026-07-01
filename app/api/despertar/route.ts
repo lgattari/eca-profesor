@@ -14,13 +14,16 @@ export async function GET() {
     return NextResponse.json({ texto: sesion.monologo_despertar })
   }
 
-    console.log('Calling ElevenLabs with voice ID:', process.env.ELEVENLABS_VOICE_ID)
+  if (!process.env.ELEVENLABS_VOICE_ID || !process.env.ELEVENLABS_API_KEY) {
+    return NextResponse.json({ error: 'ElevenLabs configuration missing' }, { status: 500 })
+  }
 
+  console.log('Calling ElevenLabs with voice ID:', process.env.ELEVENLABS_VOICE_ID)
 
   const voiceRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVENLABS_VOICE_ID}`, {
     method: 'POST',
     headers: {
-      'xi-api-key': process.env.ELEVENLABS_API_KEY!,
+      'xi-api-key': process.env.ELEVENLABS_API_KEY,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -30,11 +33,20 @@ export async function GET() {
     })
   })
 
-    console.log('ElevenLabs response status:', voiceRes.status)
+  console.log('ElevenLabs response status:', voiceRes.status)
 
-    
+  if (!voiceRes.ok) {
+    const errorText = await voiceRes.text()
+    console.error('ElevenLabs TTS failed:', voiceRes.status, errorText)
+    return NextResponse.json({ error: 'ElevenLabs TTS failed', detail: errorText }, { status: voiceRes.status })
+  }
+
   const audioBuffer = await voiceRes.arrayBuffer()
-  return new NextResponse(audioBuffer, {
+  if (audioBuffer.byteLength === 0) {
+    return NextResponse.json({ error: 'Empty audio response from ElevenLabs' }, { status: 502 })
+  }
+
+  return new Response(audioBuffer, {
     headers: {
       'Content-Type': 'audio/mpeg',
       'Content-Length': audioBuffer.byteLength.toString(),

@@ -201,7 +201,15 @@ export default function Pantalla() {
           if (process.env.USE_ELEVENLABS === 'true') {
               try {
                 const res = await fetch(`/api/despertar?t=${Date.now()}`)
+                if (!res.ok) {
+                  const text = await res.text()
+                  throw new Error(`Despertar audio request failed: ${res.status} ${text}`)
+                }
                 const blob = await res.blob()
+                if (!blob.type.startsWith('audio/')) {
+                  const text = await blob.text()
+                  throw new Error(`Despertar returned non-audio content: ${blob.type} ${text}`)
+                }
                 const url = URL.createObjectURL(blob)
                 const audio = new Audio(url)
                 talkingAudioRef.current = audio
@@ -279,7 +287,15 @@ export default function Pantalla() {
 
         if (process.env.USE_ELEVENLABS === 'true') {
           const res = await fetch(`/api/audio?t=${Date.now()}`)
+          if (!res.ok) {
+            const text = await res.text()
+            throw new Error(`Audio request failed: ${res.status} ${text}`)
+          }
           const blob = await res.blob()
+          if (!blob.type.startsWith('audio/')) {
+            const text = await blob.text()
+            throw new Error(`Audio returned non-audio content: ${blob.type} ${text}`)
+          }
           const url = URL.createObjectURL(blob)
           const audio = new Audio(url)
           talkingAudioRef.current = audio
