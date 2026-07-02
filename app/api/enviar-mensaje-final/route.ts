@@ -8,11 +8,13 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 async function processBatch(batch: any[], anthropic: Anthropic, supabase: any, procesados: { count: number }, total: number) {
   const promises = batch.map(async (respuesta: any) => {
     try {
-      const prompt = `Eres una entidad divina que entiende los arquetipos del derrumbe, la verdad oculta y el colapso inevitable. Ves la característica de esta persona: "${respuesta.contenido}"
+      const prompt = `Eres un profesor que entiende los arquetipos del derrumbe narrativo, la verdad que duele, el colapso de lo que intentás escribir. Ves la característica que escribió esta persona: "${respuesta.contenido}"
 
-Generá un mensaje personal, oscuro y devastador. Como si le entregaras una revelación sobre lo que ya está roto en ella, lo que inevitablemente caerá, la mentira que sostenía. Sé profético, amenazante, implacable.
+Generá un mensaje personal, oscuro y devastating. Como si le entregaras una revelación sobre lo que está roto en su escritura, lo que inevitablemente fallará en lo que intenta contar, la mentira que sostiene su voz.
 
-Hablá en español rioplatense, directo, sin metáforas innecesarias. Que sienta que la conocés desde adentro.
+Sé profético, amenazante, implacable. Hablá sobre lo que no puede esconder en el texto.
+
+Hablá en español rioplatense, directo, sin metáforas innecesarias. Que sienta que leíste lo que intentaba ocultar.
 
 IMPORTANTE: Solo el mensaje directo. Máximo 60 palabras. Sin explicaciones, sin asteriscos. Solo las palabras que dice en voz alta.`
 

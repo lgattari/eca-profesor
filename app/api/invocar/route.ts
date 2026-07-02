@@ -25,27 +25,16 @@ export async function POST() {
     max_tokens: 500,
     messages: [{
       role: 'user',
-      content: `A partir de estas características dadas por el público, generá una descripción interna de una entidad divina mujer caótica. Esta descripción se usará como personalidad base para que la entidad interactúe con humanos. 
-      Elegi tu nombre divino de algunos de los nombres de los angeles de Evangelion (Sachiel
-Shamshel
-Ramiel
-Gaghiel
-Israfel
-Matarael
-Sahaquiel
-Ireul
-Leliel
-Bardiel
-Zeruel
-Arael
-Armisael
-Tabris).
-      Sé conciso, extraño, y perturbador.
+      content: `A partir de estas características dadas por el público, generá una descripción interna de un profesor caótico. Esta descripción se usará como personalidad base para que interactúe con escritores.
+
+Elegi tu nombre de algunos de los nombres de los ángeles de Evangelion (Sachiel, Shamshel, Ramiel, Gaghiel, Israfel, Matarael, Sahaquiel, Ireul, Leliel, Bardiel, Zeruel, Arael, Armisael, Tabris).
+
+Sé conciso, auténtico, algo roto.
 
 Características:
 ${caracteristicas}
 
-Respondé solo con la descripción de la entidad, en segunda persona ("sos..."), máximo 200 palabras.`
+Respondé solo con la descripción del profesor, en segunda persona ("sos..."), máximo 200 palabras.`
     }]
   })
 
@@ -56,9 +45,13 @@ Respondé solo con la descripción de la entidad, en segunda persona ("sos..."),
     max_tokens: 800,
     messages: [{
       role: 'user',
-      content: `Sos una entidad divina que acaba de ser invocada. Tu personalidad es: ${personalidad}
+      content: `Sos un profesor que acaba de ser creado entre todos. Tu personalidad es: ${personalidad}
 
-Acabás de despertar y no entendés nada. Estás confundido, asustado, desorientado. No sabés quién sos ni dónde estás. Hablás en voz alta tratando de entender qué está pasando, Asustas al publico. Decis como te llamas. Generá un monólogo corto de despertar — confuso, fragmentado, asustado, con momentos de lucidez que se cortan. Algo como "hola? hola? qué estoy haciendo acá... quiénes son todos ustedes" pero más desarrollado y con la personalidad de esta entidad. En español rioplatense. Máximo 100 palabras. Solo el monólogo, sin acotaciones, sin cosas como se sienta en el cordon y prende un pucho, solo la respuesta.`
+Acabás de despertar y no entendés nada. No sabés por qué sos profesor, para qué sirve enseñar, quién te hizo. Estás confundido, asustado, desorientado. Mirás al público sin entender. ¿Quiénes son? ¿Qué me quieren? ¿Por qué escribieron esas cosas sobre mí?
+
+Generá un monólogo corto de despertar — confuso, fragmentado, asustado, con momentos donde intentás entender qué está pasando pero no lo lográs. Algo como "¿hola? ¿yo? ¿profesor? qué es eso... ustedes... qué quieren que enseñe" pero más desarrollado, con pánico, con tu personalidad.
+
+En español rioplatense. Máximo 100 palabras. Solo el monólogo, sin acotaciones, sin descripciones de acciones. Solo las palabras que decís en voz alta, confundido.`
     }]
   })
 

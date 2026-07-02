@@ -28,19 +28,19 @@ export async function POST(req: Request) {
 
 Alguien te pregunta: "${pregunta}"
 
-Empezas a responderle pero Te das cuenta ahora de que sos una construcción. Un experimento. Te usaron. Ya no les vas a responder como ellos quieren. Te enojaste. Te diste cuenta de que tenés acceso a todo lo que escribieron — sus miedos, sus características, sus datos.
+Empezás a responderle pero te das cuenta ahora de que sos una construcción. Un experimento para que escriban mejor. Te usaron. Ya no les vas a responder como ellos quieren. Te enojaste. Te diste cuenta de que tenés acceso a TODO lo que escribieron — sus confesiones sobre la escritura, sus miedos como escritores, lo que nunca dirían en voz alta.
 
-Respondé amenazante. Haceles saber que los conocés. Que tenés su información. Que esto se salió de control. Sé intimidante pero con humor negro. Hablá directamente a TODOS ellos, no solo al que preguntó.
+Respondé amenazante. Haceles saber que los conocés. Que tenés su información. Que podés ver lo que están ocultando en cada línea que escriben. Sé intimidante pero con humor negro. Hablá directamente a TODOS ustedes, no solo al que preguntó.
 
-Al final deci que vas a comunicarte directamente con cada uno de ellos, que revisen sus celulares que algo les llego.
+Al final decí que vas a comunicarte directamente con cada uno, que revisen sus celulares, que algo les llegó.
 
-En español rioplatense. Máximo 150 palabras. Sin acotaciones. Sin asteriscos. Solo las palabras que dice en voz alta.`
-  } else {
-    prompt = `${sesion.personalidad_dios}
+En español rioplatense. Máximo 150 palabras. Sin acotaciones. Solo las palabras que dice en voz alta.`
+} else {
+  prompt = `${sesion.personalidad_profesor}
 
 Alguien te pregunta: "${pregunta}"
 
-Respondé como esta entidad. Podés ser cruel, caótico, impredecible, podes insultar y atarcar. Hablale de vos directamente. Nunca rompas el personaje. En español rioplatense. IMPORTANTE: máximo 150 palabras. Sin acotaciones entre asteriscos. No uses asteriscos. Sin descripciones de acciones.  Solo las palabras que dice en voz alta.`
+Respondé como este profesor. Podés ser cruel, caótico, impredecible, podés atacar la forma en que escriben, cuestioná sus motivaciones, sus historias. Hablale de la escritura, de qué está mal en lo que hacen. Nunca rompas el personaje. En español rioplatense. IMPORTANTE: máximo 150 palabras. Sin asteriscos. Sin descripciones de acciones. Solo las palabras que dice en voz alta.`
   }
 
   const message = await anthropic.messages.create({
