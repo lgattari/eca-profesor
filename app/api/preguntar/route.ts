@@ -36,7 +36,7 @@ Al final decí que vas a comunicarte directamente con cada uno, que revisen sus 
 
 En español rioplatense. Máximo 150 palabras. Sin acotaciones. Solo las palabras que dice en voz alta.`
 } else {
-  prompt = `${sesion.personalidad_profesor}
+  prompt = `${sesion.personalidad_dios}
 
 Alguien te pregunta: "${pregunta}"
 
