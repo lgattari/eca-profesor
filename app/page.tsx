@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 
 export default function Home() {
   const [texto, setTexto] = useState('')
+  const [email, setEmail] = useState('')
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [enviado, setEnviado] = useState(false)
   const [cargando, setCargando] = useState(false)
@@ -128,6 +129,8 @@ export default function Home() {
   async function enviar() {
     if (!texto.trim() || !userId) return
 
+    const emailParaGuardar = email.trim() || null
+
     if (!audioRef.current) {
       audioRef.current = new Audio('/notif.mp3')
       audioRef.current.muted = true
@@ -145,8 +148,10 @@ export default function Home() {
     await fetch('/api/respuesta', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contenido: texto, userId }),
+      body: JSON.stringify({ contenido: texto, userId, email: emailParaGuardar }),
     })
+    setTexto('')
+    setEmail('')
     setEnviado(true)
     setCargando(false)
   }
@@ -382,6 +387,35 @@ export default function Home() {
         }}>
           Escribí una característica. Lo que querés que sea. Un defecto, una virtud, una manía. Una frase.
         </p>
+
+        <input
+          type="email"
+          style={{
+            width: '100%',
+            backgroundColor: 'rgba(200,150,255,0.05)',
+            border: '1px solid rgba(200,150,255,0.3)',
+            borderRadius: '8px',
+            padding: '0.9rem 1rem',
+            color: 'white',
+            fontSize: '1rem',
+            fontFamily: 'inherit',
+            outline: 'none',
+            transition: 'all 0.3s ease',
+          }}
+          placeholder="tu email (opcional)"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
+            const target = e.target as HTMLInputElement
+            target.style.backgroundColor = 'rgba(200,150,255,0.1)'
+            target.style.borderColor = 'rgba(200,150,255,0.6)'
+          }}
+          onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+            const target = e.target as HTMLInputElement
+            target.style.backgroundColor = 'rgba(200,150,255,0.05)'
+            target.style.borderColor = 'rgba(200,150,255,0.3)'
+          }}
+        />
 
         <textarea
           style={{

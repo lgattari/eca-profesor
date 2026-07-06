@@ -363,7 +363,7 @@ export default function Admin() {
                 }
               }}
             >
-              {cargando ? 'invocando...' : 'invocar al dios'}
+              {cargando ? 'invocando...' : 'invocar al profe'}
             </button>
           )}
 
