@@ -6,6 +6,8 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
+const MENSAJE_FALLBACK = 'Gracias por tu participación. Tu característica quedó registrada y este mensaje llega como un cierre.'
+
 async function generarMensajePersonalizado(contenido: string) {
   if (!process.env.ANTHROPIC_API_KEY) {
     throw new Error('ANTHROPIC_API_KEY no configurada')
@@ -86,7 +88,16 @@ export async function POST() {
       const caracteristica = respuesta.contenido?.trim() || 'sin característica'
 
       try {
-        const mensajePersonalizado = await generarMensajePersonalizado(caracteristica)
+        let mensajePersonalizado = respuesta.mensaje_personalizado?.trim()
+
+        if (!mensajePersonalizado) {
+          try {
+            mensajePersonalizado = await generarMensajePersonalizado(caracteristica)
+          } catch (error) {
+            console.error(`Anthropic falló para user ${respuesta.user_id}, usando fallback:`, error)
+            mensajePersonalizado = MENSAJE_FALLBACK
+          }
+        }
 
         const { error: updateError } = await supabase
           .from('respuestas')
@@ -94,7 +105,7 @@ export async function POST() {
           .eq('id', respuesta.id)
 
         if (updateError) {
-          throw updateError
+          console.error(`Error guardando mensaje para user ${respuesta.user_id}:`, updateError)
         }
 
         if (!emailDestino) {
@@ -110,7 +121,9 @@ export async function POST() {
         })
 
         if (emailResponse.error) {
-          throw new Error(emailResponse.error.message || 'Error al enviar el email')
+          console.error(`Resend falló para user ${respuesta.user_id}:`, emailResponse.error)
+          resultados.push({ userId: respuesta.user_id, ok: false, error: emailResponse.error.message || 'falló el envío' })
+          continue
         }
 
         resultados.push({ userId: respuesta.user_id, ok: true })
@@ -123,12 +136,12 @@ export async function POST() {
     const enviados = resultados.filter((resultado) => resultado.ok).length
     const fallidos = resultados.filter((resultado) => !resultado.ok).length
 
-    if (fallidos > 0) {
-      console.error(`Emails enviados: ${enviados}; fallidos: ${fallidos}`)
+    if (enviados === 0) {
+      console.error(`No se pudo enviar ningún email. Detalle:`, resultados)
       return NextResponse.json({ ok: false, enviados, fallidos, resultados }, { status: 500 })
     }
 
-    return NextResponse.json({ ok: true, enviados, total: respuestas.length })
+    return NextResponse.json({ ok: true, enviados, fallidos, total: respuestas.length, resultados })
   } catch (error) {
     console.error('Error en enviar-mensaje-final:', error)
     return NextResponse.json({ error: 'error interno del servidor' }, { status: 500 })
