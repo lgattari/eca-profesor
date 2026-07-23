@@ -364,7 +364,8 @@ export default function Home() {
             lineHeight: 1.7,
             fontStyle: 'italic',
           }}>
-            En tres meses va a vivir en internet. Va a responder preguntas sobre escritura. Va a crecer. Va a aprender de ustedes.
+            Creemos un profe a medida. No se cansa, que no se enoja (bueno no sé), que no se duerme. Que no tenga prejuicios. Que no tenga miedo. Que no tenga vergüenza. Que no tenga límites.
+            Pero solo va a vivir tres meses. Va a responder preguntas sobre escritura. Va a crecer. Va a aprender de ustedes.
           </p>
           <p style={{
             fontSize: '0.95rem',
