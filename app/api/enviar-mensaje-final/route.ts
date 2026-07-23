@@ -1,52 +1,50 @@
 import { supabase } from '@/lib/supabase'
 import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
+import { Resend } from 'resend'
 
+const resend = new Resend(process.env.RESEND_API_KEY)
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-// Función para procesar un lote de mensajes
-async function processBatch(batch: any[], anthropic: Anthropic, supabase: any, procesados: { count: number }, total: number) {
-  const promises = batch.map(async (respuesta: any) => {
-    try {
-      const prompt = `Eres un profesor que entiende los arquetipos del derrumbe narrativo, la verdad que duele, el colapso de lo que intentás escribir. Ves la característica que escribió esta persona: "${respuesta.contenido}"
+async function generarMensajePersonalizado(contenido: string) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY no configurada')
+  }
+
+  const prompt = `Eres una profesora que entiende los arquetipos del derrumbe narrativo, la verdad que duele, el colapso de lo que intentás escribir. Ves la característica que escribió esta persona: "${contenido}"
 
 Generá un mensaje personal, oscuro y devastating. Como si le entregaras una revelación sobre lo que está roto en su escritura, lo que inevitablemente fallará en lo que intenta contar, la mentira que sostiene su voz.
 
-Sé profético, amenazante, implacable. Hablá sobre lo que no puede esconder en el texto.
+Sé profética, amenazante, implacable. Hablá sobre lo que no puede esconder en el texto.
 
 Hablá en español rioplatense, directo, sin metáforas innecesarias. Que sienta que leíste lo que intentaba ocultar.
 
 IMPORTANTE: Solo el mensaje directo. Máximo 60 palabras. Sin explicaciones, sin asteriscos. Solo las palabras que dice en voz alta.`
 
-      const message = await anthropic.messages.create({
-        model: 'claude-opus-4-6',
-        max_tokens: 150, // Reducido para ahorrar costos
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      })
-
-      const mensajePersonalizado = message.content[0].type === 'text' ? message.content[0].text : ''
-
-      // Guardar el mensaje personalizado en la respuesta del usuario
-      const { error: updateError } = await supabase
-        .from('respuestas')
-        .update({ mensaje_personalizado: mensajePersonalizado })
-        .eq('id', respuesta.id)
-
-      if (updateError) {
-        console.error('Error updating respuesta:', updateError)
-      } else {
-        procesados.count++
-        console.log(`✓ Mensaje generado para usuario ${respuesta.user_id} (${procesados.count}/${total})`)
-      }
-    } catch (error) {
-      console.error('Error generando mensaje para usuario', respuesta.user_id, error)
-    }
+  const message = await anthropic.messages.create({
+    model: 'claude-opus-4-6',
+    max_tokens: 150,
+    messages: [{ role: 'user', content: prompt }],
   })
 
-  await Promise.all(promises)
+  return message.content[0].type === 'text' ? message.content[0].text : ''
+}
+
+function buildEmailHtml(caracteristica: string, mensajePersonalizado: string) {
+  return `
+    <div style="font-family: Arial, sans-serif; background-color:#f7f2ff; padding:24px; margin:0;">
+      <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.06);">
+        <div style="background:linear-gradient(135deg, #c896ff 0%, #9d5cf8 100%); padding:24px 24px 20px; color:#ffffff;">
+          <h1 style="margin:0 0 8px; font-size:24px;">Tu característica: ${caracteristica}</h1>
+          <p style="margin:0; font-size:16px; opacity:0.95;">Un mensaje especial para cerrar esta experiencia.</p>
+        </div>
+        <div style="padding:24px; color:#2f2a3d; line-height:1.6;">
+          <p style="margin:0 0 16px; font-size:16px;">${mensajePersonalizado}</p>
+          <p style="margin:24px 0 0; font-size:15px; color:#6b5f7f;">Con cariño, Tu Profesor</p>
+        </div>
+      </div>
+    </div>
+  `
 }
 
 export async function POST() {
@@ -62,10 +60,9 @@ export async function POST() {
       return NextResponse.json({ error: 'no hay sesion activa' }, { status: 400 })
     }
 
-    // Obtener todas las respuestas (características) de la sesión
     const { data: respuestas, error: respuestasError } = await supabase
       .from('respuestas')
-      .select('id, user_id, contenido')
+      .select('id, user_id, email, mensaje_personalizado, contenido')
       .eq('sesion_id', sesion.id)
 
     if (respuestasError) {
@@ -77,30 +74,61 @@ export async function POST() {
       return NextResponse.json({ error: 'no hay características para procesar' }, { status: 400 })
     }
 
-    console.log(`Procesando ${respuestas.length} mensajes personalizados...`)
-
-    let procesados = { count: 0 }
-    const concurrencyLimit = 5 // Procesar máximo 5 mensajes al mismo tiempo
-
-    // Procesar en lotes con concurrencia controlada
-    for (let i = 0; i < respuestas.length; i += concurrencyLimit) {
-      const batch = respuestas.slice(i, i + concurrencyLimit)
-      await processBatch(batch, anthropic, supabase, procesados, respuestas.length)
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY no configurada')
+      return NextResponse.json({ error: 'RESEND_API_KEY no configurada' }, { status: 500 })
     }
 
-    // Actualizar mensaje_push para disparar notificaciones
-    const { error: pushError } = await supabase
-      .from('sesiones')
-      .update({ mensaje_push: 'APOCALIPSIS' })
-      .eq('id', sesion.id)
+    const resultados: Array<{ userId: string | null; ok: boolean; error?: string }> = []
 
-    if (pushError) {
-      console.error('Error updating mensaje_push:', pushError)
-      return NextResponse.json({ error: 'error al enviar notificaciones' }, { status: 500 })
+    for (const respuesta of respuestas) {
+      const emailDestino = respuesta.email?.trim()
+      const caracteristica = respuesta.contenido?.trim() || 'sin característica'
+
+      try {
+        const mensajePersonalizado = await generarMensajePersonalizado(caracteristica)
+
+        const { error: updateError } = await supabase
+          .from('respuestas')
+          .update({ mensaje_personalizado: mensajePersonalizado })
+          .eq('id', respuesta.id)
+
+        if (updateError) {
+          throw updateError
+        }
+
+        if (!emailDestino) {
+          resultados.push({ userId: respuesta.user_id, ok: false, error: 'sin email' })
+          continue
+        }
+
+        const emailResponse = await resend.emails.send({
+          from: 'profesor@tudominio.ar',
+          to: emailDestino,
+          subject: 'Un mensaje antes del final',
+          html: buildEmailHtml(caracteristica, mensajePersonalizado),
+        })
+
+        if (emailResponse.error) {
+          throw new Error(emailResponse.error.message || 'Error al enviar el email')
+        }
+
+        resultados.push({ userId: respuesta.user_id, ok: true })
+      } catch (error) {
+        console.error(`Error procesando email para user ${respuesta.user_id}:`, error)
+        resultados.push({ userId: respuesta.user_id, ok: false, error: 'falló el procesamiento' })
+      }
     }
 
-    console.log(`Apocalipsis invocado: ${procesados.count}/${respuestas.length} mensajes enviados`)
-    return NextResponse.json({ ok: true, procesados: procesados.count, total: respuestas.length })
+    const enviados = resultados.filter((resultado) => resultado.ok).length
+    const fallidos = resultados.filter((resultado) => !resultado.ok).length
+
+    if (fallidos > 0) {
+      console.error(`Emails enviados: ${enviados}; fallidos: ${fallidos}`)
+      return NextResponse.json({ ok: false, enviados, fallidos, resultados }, { status: 500 })
+    }
+
+    return NextResponse.json({ ok: true, enviados, total: respuestas.length })
   } catch (error) {
     console.error('Error en enviar-mensaje-final:', error)
     return NextResponse.json({ error: 'error interno del servidor' }, { status: 500 })

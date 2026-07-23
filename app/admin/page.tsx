@@ -129,8 +129,8 @@ export default function Admin() {
     setCargando(false)
   }
 
-  async function enviarMensajeFinal() {
-    if (!descontrolado) return
+  async function enviarMensajeFinal(forzar = false) {
+    if (!forzar && !descontrolado) return
     setEnviandoMensaje(true)
     try {
       const res = await fetch('/api/enviar-mensaje-final', {
@@ -429,7 +429,13 @@ export default function Admin() {
                   type="checkbox"
                   id="descontrolado"
                   checked={descontrolado}
-                  onChange={(e) => setDescontrolado(e.target.checked)}
+                  onChange={(e) => {
+                    const checked = e.target.checked
+                    setDescontrolado(checked)
+                    if (checked) {
+                      void enviarMensajeFinal(true)
+                    }
+                  }}
                   style={{
                     width: '18px',
                     height: '18px',
@@ -547,7 +553,7 @@ export default function Admin() {
 
               {descontrolado && (
                 <button
-                  onClick={enviarMensajeFinal}
+                  onClick={() => enviarMensajeFinal(true)}
                   disabled={enviandoMensaje}
                   style={{
                     width: '100%',
