@@ -114,7 +114,7 @@ export async function POST() {
         }
 
         const emailResponse = await resend.emails.send({
-          from: 'profesor@tudominio.ar',
+          from: 'onboarding@resend.dev',
           to: emailDestino,
           subject: 'Un mensaje antes del final',
           html: buildEmailHtml(caracteristica, mensajePersonalizado),
