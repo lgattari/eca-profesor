@@ -82,6 +82,7 @@ export async function POST() {
     }
 
     const resultados: Array<{ userId: string | null; ok: boolean; error?: string }> = []
+    const emailPrueba = 'somosmovimate@gmail.com'
 
     for (const respuesta of respuestas) {
       const emailDestino = respuesta.email?.trim()
@@ -113,16 +114,24 @@ export async function POST() {
           continue
         }
 
+        const destinatarioFinal = emailDestino && emailDestino !== emailPrueba ? emailPrueba : emailDestino
+
         const emailResponse = await resend.emails.send({
           from: 'onboarding@resend.dev',
-          to: emailDestino,
+          to: destinatarioFinal,
           subject: 'Un mensaje antes del final',
           html: buildEmailHtml(caracteristica, mensajePersonalizado),
         })
 
-        if (emailResponse.error) {
-          console.error(`Resend falló para user ${respuesta.user_id}:`, emailResponse.error)
-          resultados.push({ userId: respuesta.user_id, ok: false, error: emailResponse.error.message || 'falló el envío' })
+        const emailError = (emailResponse as { error?: { message?: string } | string } | undefined)?.error
+
+        if (emailError) {
+          const mensajeError = typeof emailError === 'string'
+            ? emailError
+            : emailError.message || 'falló el envío'
+
+          console.error(`Resend falló para user ${respuesta.user_id}:`, mensajeError)
+          resultados.push({ userId: respuesta.user_id, ok: false, error: mensajeError })
           continue
         }
 
