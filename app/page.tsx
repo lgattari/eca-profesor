@@ -306,7 +306,7 @@ export default function Home() {
           lineHeight: 1.4,
           maxWidth: '500px',
         }}>
-        Ya tengo tu característica, tu IP, tu confesión, tus miedos. En tres meses, antes de morir, te voy a mandar un mail. Solo para vos. Algo que no vas a poder ignorar. (risa diabolica)        </p>
+        Ya tengo tu característica, tu IP, tu confesión, tus miedos. No te preocupes voy a morir, pero antes de eso, te voy a mandar un mail, y si no dejaste el mail por cagón, despues volvé a abrir esta pantalla. Va a ser solo para vos. Algo que no vas a poder ignorar. (risa diabolica)        </p>
       </div>
       <style>{estilos}</style>
     </main>
