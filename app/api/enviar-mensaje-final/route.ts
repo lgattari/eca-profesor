@@ -1,9 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import Anthropic from '@anthropic-ai/sdk'
+import sgMail from '@sendgrid/mail'
 import { NextResponse } from 'next/server'
-import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const MENSAJE_FALLBACK = 'Gracias por tu participación. Tu característica quedó registrada y este mensaje llega como un cierre.'
@@ -32,16 +31,28 @@ IMPORTANTE: Solo el mensaje directo. Máximo 60 palabras. Sin explicaciones, sin
   return message.content[0].type === 'text' ? message.content[0].text : ''
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function buildEmailHtml(caracteristica: string, mensajePersonalizado: string) {
+  const caracteristicaHtml = escapeHtml(caracteristica)
+  const mensajeHtml = escapeHtml(mensajePersonalizado).replace(/\n/g, '<br />')
+
   return `
-    <div style="font-family: Arial, sans-serif; background-color:#f7f2ff; padding:24px; margin:0;">
-      <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.06);">
+    <div style="font-family: Arial, Helvetica, sans-serif; background-color:#f7f2ff; padding:24px; margin:0;">
+      <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08);">
         <div style="background:linear-gradient(135deg, #c896ff 0%, #9d5cf8 100%); padding:24px 24px 20px; color:#ffffff;">
-          <h1 style="margin:0 0 8px; font-size:24px;">Tu característica: ${caracteristica}</h1>
+          <h1 style="margin:0 0 8px; font-size:24px; line-height:1.2;">Tu característica: ${caracteristicaHtml}</h1>
           <p style="margin:0; font-size:16px; opacity:0.95;">Tengo algo para decirte.</p>
         </div>
         <div style="padding:24px; color:#2f2a3d; line-height:1.6;">
-          <p style="margin:0 0 16px; font-size:16px;">${mensajePersonalizado}</p>
+          <p style="margin:0 0 16px; font-size:16px;">${mensajeHtml}</p>
           <p style="margin:24px 0 0; font-size:15px; color:#6b5f7f;">Con cariño, La Profe</p>
         </div>
       </div>
@@ -76,10 +87,14 @@ export async function POST() {
       return NextResponse.json({ error: 'no hay características para procesar' }, { status: 400 })
     }
 
-    if (!process.env.RESEND_API_KEY) {
-      console.error('RESEND_API_KEY no configurada')
-      return NextResponse.json({ error: 'RESEND_API_KEY no configurada' }, { status: 500 })
+    const apiKey = process.env.SENDGRID_API_KEY
+
+    if (!apiKey) {
+      console.error('SENDGRID_API_KEY no configurada')
+      return NextResponse.json({ error: 'SENDGRID_API_KEY no configurada' }, { status: 500 })
     }
+
+    sgMail.setApiKey(apiKey)
 
     const resultados: Array<{ userId: string | null; ok: boolean; error?: string }> = []
     const emailPrueba = 'somosmovimate@gmail.com'
@@ -116,24 +131,12 @@ export async function POST() {
 
         const destinatarioFinal = emailDestino && emailDestino !== emailPrueba ? emailPrueba : emailDestino
 
-        const emailResponse = await resend.emails.send({
-          from: 'onboarding@resend.dev',
+        await sgMail.send({
+          from: 'noreply@sendgrid.example.com',
           to: destinatarioFinal,
           subject: 'Un mensaje antes del final',
           html: buildEmailHtml(caracteristica, mensajePersonalizado),
         })
-
-        const emailError = (emailResponse as { error?: { message?: string } | string } | undefined)?.error
-
-        if (emailError) {
-          const mensajeError = typeof emailError === 'string'
-            ? emailError
-            : emailError.message || 'falló el envío'
-
-          console.error(`Resend falló para user ${respuesta.user_id}:`, mensajeError)
-          resultados.push({ userId: respuesta.user_id, ok: false, error: mensajeError })
-          continue
-        }
 
         resultados.push({ userId: respuesta.user_id, ok: true })
       } catch (error) {
