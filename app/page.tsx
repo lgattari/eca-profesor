@@ -365,7 +365,7 @@ export default function Home() {
             fontStyle: 'italic',
           }}>
             Creemos un profe a medida. No se cansa, que no se enoja (bueno no sé), que no se duerme. Que no tenga prejuicios. Que no tenga miedo. Que no tenga vergüenza. Que no tenga límites.
-            Pero solo va a vivir tres meses. Va a responder preguntas sobre escritura. Va a crecer. Va a aprender de ustedes.
+            Va a responder preguntas sobre escritura. Va a crecer. Va a aprender de ustedes.
           </p>
           <p style={{
             fontSize: '0.95rem',
@@ -374,7 +374,7 @@ export default function Home() {
             lineHeight: 1.7,
             fontStyle: 'italic',
           }}>
-            Y el último día va a decir la verdad más verdadera. Después muere.
+            Disparará algunas de las verdades más verdaderas. Después muere.
           </p>
         </div>
 
