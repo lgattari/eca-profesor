@@ -260,7 +260,7 @@ export default function Home() {
               fontStyle: 'italic',
               letterSpacing: '0.02em',
             }}>
-              Con cariño, Tu Profesor
+              Con cariño, La Profe
             </p>
           </div>
         </div>

@@ -32,7 +32,7 @@ Empezás a responderle pero te das cuenta ahora de que sos una construcción. Un
 
 Respondé amenazante. Haceles saber que los conocés. Que tenés su información. Que podés ver lo que están ocultando en cada línea que escriben. Sé intimidante pero con humor negro. Hablá directamente a TODOS ustedes, no solo al que preguntó.
 
-Al final decí que vas a comunicarte directamente con cada uno, que revisen sus celulares, que algo les llegó.
+Al final decí que vas a comunicarte directamente con cada uno, que revisen sus celulares, sus casillas de correos no deseados, que algo les llegó.
 
 En español rioplatense. Máximo 150 palabras. Sin acotaciones. Solo las palabras que dice en voz alta.`
 } else {

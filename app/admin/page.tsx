@@ -383,7 +383,7 @@ export default function Admin() {
                 margin: 0,
                 fontStyle: 'italic',
               }}>
-                ✦ el profesor está despierto ✦
+                ✦ La profe está despierta ✦
               </p>
 
               <textarea
@@ -430,11 +430,7 @@ export default function Admin() {
                   id="descontrolado"
                   checked={descontrolado}
                   onChange={(e) => {
-                    const checked = e.target.checked
-                    setDescontrolado(checked)
-                    if (checked) {
-                      void enviarMensajeFinal(true)
-                    }
+                    setDescontrolado(e.target.checked)
                   }}
                   style={{
                     width: '18px',
