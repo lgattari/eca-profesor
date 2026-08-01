@@ -56,6 +56,7 @@ export async function POST(req: Request) {
 
     sgMail.setApiKey(apiKey)
 
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'somosmovimate@gmail.com'
     const caracteristica = respuesta.contenido?.trim() || 'sin característica'
     const mensajePersonalizado = respuesta.mensaje_personalizado?.trim() || 'No se me ocurrió nada, que sé yo.'
     const mensajeHtml = escapeHtml(mensajePersonalizado).replace(/\n/g, '<br />')
@@ -77,7 +78,7 @@ export async function POST(req: Request) {
 
     await sgMail.send({
       to: emailDestino,
-      from: 'noreply@sendgrid.example.com',
+      from: fromEmail,
       subject: 'Un mensaje antes del final',
       html,
     })

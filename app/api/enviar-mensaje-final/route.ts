@@ -60,6 +60,44 @@ function buildEmailHtml(caracteristica: string, mensajePersonalizado: string) {
   `
 }
 
+function getErrorMessage(error: unknown): string {
+  if (typeof error === 'string') {
+    return error
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const maybeResponse = error as {
+      message?: string
+      response?: {
+        body?: {
+          errors?: Array<{ message?: string }>
+        }
+      }
+    }
+
+    const bodyErrors = maybeResponse.response?.body?.errors
+    if (bodyErrors && bodyErrors.length > 0) {
+      const messages = bodyErrors
+        .map((entry) => entry.message)
+        .filter((message): message is string => Boolean(message))
+
+      if (messages.length > 0) {
+        return messages.join(', ')
+      }
+    }
+
+    if (maybeResponse.message) {
+      return maybeResponse.message
+    }
+  }
+
+  return 'falló el procesamiento'
+}
+
 export async function POST() {
   try {
     const { data: sesion, error: sesionError } = await supabase
@@ -96,8 +134,8 @@ export async function POST() {
 
     sgMail.setApiKey(apiKey)
 
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'somosmovimate@gmail.com'
     const resultados: Array<{ userId: string | null; ok: boolean; error?: string }> = []
-    const emailPrueba = 'somosmovimate@gmail.com'
 
     for (const respuesta of respuestas) {
       const emailDestino = respuesta.email?.trim()
@@ -129,19 +167,18 @@ export async function POST() {
           continue
         }
 
-        const destinatarioFinal = emailDestino && emailDestino !== emailPrueba ? emailPrueba : emailDestino
-
         await sgMail.send({
-          from: 'noreply@sendgrid.example.com',
-          to: destinatarioFinal,
+          from: fromEmail,
+          to: emailDestino,
           subject: 'Un mensaje antes del final',
           html: buildEmailHtml(caracteristica, mensajePersonalizado),
         })
 
         resultados.push({ userId: respuesta.user_id, ok: true })
       } catch (error) {
-        console.error(`Error procesando email para user ${respuesta.user_id}:`, error)
-        resultados.push({ userId: respuesta.user_id, ok: false, error: 'falló el procesamiento' })
+        const mensajeError = getErrorMessage(error)
+        console.error(`Error procesando email para user ${respuesta.user_id}:`, mensajeError)
+        resultados.push({ userId: respuesta.user_id, ok: false, error: mensajeError })
       }
     }
 
